@@ -8,7 +8,6 @@
 /pkg/
 /spec/coverage/
 /tmp/
-Gemfile.lock
 temp/
 .idea/
 vendor/
