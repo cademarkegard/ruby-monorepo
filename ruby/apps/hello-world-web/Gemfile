@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'hello_world', path: '../../gems/hello_world'
+gem 'shotgun'
+gem 'sinatra'
