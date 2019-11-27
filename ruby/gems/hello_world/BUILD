@@ -10,7 +10,7 @@ load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary")
 load("@bazelruby_ruby_rules//ruby:defs.bzl", "bundle_install")
 
 ruby_library(
-    name = "lib",
+    name = "hello-world-lib",
     srcs = glob(["lib/**/*.rb"]),
     )
 
@@ -19,8 +19,8 @@ ruby_binary(
     srcs = ["exe/hello-world"],
     main = "exe/hello-world",
     deps = [
-        ":lib",
-        "@hello_world-bundle//:libs"],
+        ":hello-world-lib",
+        "@hello-world-bundle//:libs"],
     )
 
 separator = ' '
@@ -30,7 +30,8 @@ ruby_test(
     main = "spec/spec_helper.rb",
     rubyopt = ["-rrspec/autorun"],
     srcs = glob(["spec/**/*.rb"]),
+    includes = [ "lib" ],
     deps = [
-        ":lib",
-        "@hello_world-bundle//:libs"]
+        ":hello-world-lib",
+        "@hello-world-bundle//:libs"]
     )

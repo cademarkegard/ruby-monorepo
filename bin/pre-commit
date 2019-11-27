@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+export COLUMNS=90
+
+[[ -x bin/deps ]] && source bin/deps
+[[ ! -f .rubocop.yml && -x bin/setup ]] && source bin/setup
+
+info "Running Rubocop, please wait..."
+code=0
+run::set-next show-output-on
+run "rubocop -C true -F -D || rubocop -a"
+
+run::set-next abort-on-error
+run "rubocop"
+
+success "RuboCop ran successfully."
+

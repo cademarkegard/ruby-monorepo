@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'hello_world/cli'
 require 'hello_world/parser'
@@ -5,7 +7,6 @@ require 'hello_world/parser'
 require 'forwardable'
 
 module HelloWorld
-
   RSpec.describe CLI do
     let(:cli) { described_class.create(argv: argv) }
 

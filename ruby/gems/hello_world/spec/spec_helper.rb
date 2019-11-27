@@ -11,7 +11,7 @@ if ENV['COVERAGE']
         SimpleCov::Formatter::HTMLFormatter,
         SimpleCov::Formatter::BadgeFormatter,
       ]
-  )
+    )
 
   SimpleCov.start do
     add_filter(/spec/)

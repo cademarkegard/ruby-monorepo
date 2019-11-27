@@ -1,0 +1,12 @@
+AllCops:
+  TargetRubyVersion: 
+  UseCache: false
+  DefaultFormatter: progress
+  DisplayStyleGuide: true
+  DisplayCopNames: true
+  Exclude:
+    - **/bazel-*/**/*
+    - **/examples/**/*
+
+inherit_gem:
+  relaxed-rubocop: .rubocop.yml

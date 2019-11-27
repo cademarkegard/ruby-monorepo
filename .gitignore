@@ -1,6 +1,7 @@
 **/.rakeTasks
 **/.DS_Store
 **/.idea/
+**/*.iml
 .ruby-version
 /*.enc
 /.bundle/
@@ -14,3 +15,5 @@
 temp/
 .idea/
 .ijwb/
+*.iml
+.rubocop-*

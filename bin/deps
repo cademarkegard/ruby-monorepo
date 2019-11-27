@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# vim: ft=shell
+
+export BashMatic="${HOME}/.bashmatic"
+export BashMaticURL="https://github.com/kigster/bashmatic"
+
+[[ -s ${BashMatic}/init.sh ]] || {
+  rm -rf "${BashMatic}" 2>/dev/null
+  git clone --verbose ${BashMaticURL} "${BashMatic}" 
+}
+
+[[ -z ${BashMatic}/init.sh ]] && { 
+  echo "Failed to initialize BASH library! Please check ${BashMatic} folder..."
+  exit 1
+}
+
+source "${BashMatic}/init.sh"
+
+
