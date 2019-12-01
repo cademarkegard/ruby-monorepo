@@ -2,16 +2,15 @@
 
 source 'https://rubygems.org'
 
-# TODO(kig) support gemspec
-# gemspec
+# TODO:[@kig] support gemspec in a Gemfile
 
-gem('colored2')
+gem 'colored2'
 
 group :test, :development do
-  gem('rake')
-  gem('relaxed-rubocop')
-  gem('rspec')
-  gem('rubocop', '>= 0.73')
-  gem('simplecov')
-  gem('simplecov-formatter-badge')
+  gem 'rake'
+  gem 'relaxed-rubocop'
+  gem 'rspec'
+  gem 'rubocop'
+  gem 'simplecov'
+  gem 'simplecov-formatter-badge'
 end

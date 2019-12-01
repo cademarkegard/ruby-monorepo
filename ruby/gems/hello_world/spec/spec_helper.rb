@@ -18,6 +18,12 @@ if ENV['COVERAGE']
   end
 end
 
+puts "————————————————————————————"
+puts $LOAD_PATH.join("\n")
+puts Dir.pwd
+puts Dir.glob("**/*.rb").join("\n")
+puts "———————————————————————————"
+
 require 'hello_world/cli'
 
 RSpec.configure do |config|

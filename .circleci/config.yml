@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-       - image: circleci/ruby:2.6.2-node-browsers-legacy
+      - image: circleci/ruby:2.6.5
 
     working_directory: /home/circleci/repo
 
@@ -16,18 +16,19 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
+            - v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
 
       - run:
           name: install dependencies
           command: |
+            cd /home/circleci/repo/ruby/gems/hello_world 
             bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
           paths:
-            - ./vendor/bundle
+            - /home/circleci/repo/ruby/gems/hello_world/vendor/bundle
           key: v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
-        
+
       - run:
           name: bundle install
           command: |
@@ -43,6 +44,5 @@ jobs:
       - run:
           name: run rubocop
           command: |
-            cd ~/repo
-            bundle exec rubocop -D
-
+            cd /home/circleci/repo/ruby/gems/hello_world
+            bundle exec rubocop -E -P
