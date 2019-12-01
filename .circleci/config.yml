@@ -6,10 +6,10 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: circleci/ruby:2.6.5
-
     working_directory: /home/circleci/repo
+    environment:
+      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
 
     steps:
       - checkout
@@ -17,32 +17,47 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
-
       - run:
-          name: install dependencies
+          name: Install Bundled Dependencies
           command: |
-            cd /home/circleci/repo/ruby/gems/hello_world 
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
+            cd ${HELLO_WORLD_PATH} && bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
           paths:
-            - /home/circleci/repo/ruby/gems/hello_world/vendor/bundle
-          key: v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
+            - ${HELLO_WORLD_PATH}/vendor/bundle
+          key: v1-dependencies-{{ checksum "${HELLO_WORLD_PATH}/Gemfile.lock" }}
 
       - run:
-          name: bundle install
+          name: Run Bundler
           command: |
-            cd /home/circleci/repo/ruby/gems/hello_world
-            bundle install
+            cd ${HELLO_WORLD_PATH} && bundle check || bundle install
 
       - run:
-          name: run rspecs
+          name: Run RSpecs
           command: |
-            cd /home/circleci/repo/ruby/gems/hello_world
-            bundle exec rspec
+            cd ${HELLO_WORLD_PATH} && bundle exec rspec -p 2
 
+  style:
+    docker:
+      - image: circleci/ruby:2.6.5
+    working_directory: /home/circleci/repo
+    environment:
+      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+
+    steps:
+      - checkout
       - run:
-          name: run rubocop
+          name: "Run RuboCop, but Skip Bundle Install"
           command: |
-            cd /home/circleci/repo/ruby/gems/hello_world
-            bundle exec rubocop -E -P
+            cd ${HELLO_WORLD_PATH}
+            function gem.lock.version() { grep " $1 (" Gemfile.lock | awk '{print $2}' | tr -d '()'; }
+            gem install rubocop --version $(gem.lock.version rubocop) --no-doc
+            gem install relaxed-rubocop --version $(gem.lock.version relaxed-rubocop) --no-doc
+            rubocop -E -P
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - style
