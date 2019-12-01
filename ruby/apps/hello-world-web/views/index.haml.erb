@@ -1,0 +1,15 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title See Hello World in Many Languages!
+  %body{:style => "font-family: Corbel, sans-serif; background-color: #FFFFE0;"}
+    %div{:style => "margin: 100px auto; text-align: center; border: 1px solid #333; border-radius: 10px; width: 500px; box-shadow: 5px 5px 15px 0px #999; background-color: white;"}
+      %h2 Hello World in \#{@lhash.keys.size} Languages
+      %h1{:style => "margin-bottom: 30px; color: #F70;"} \#{language ? HelloWorld.hello_world_in(language) : 'Choose Your Language'}
+      %form{:action => "/"}
+        %select{:name => "l", :onchange => "submit()"}
+          %option{:value => ""}
+          \\#{@lhash.keys.map { |l| %(
+          %option{":" => "", :language => "", :value => "\#{l}"}> \#{l.to_s.capitalize}
+          ) }.join("\n")}

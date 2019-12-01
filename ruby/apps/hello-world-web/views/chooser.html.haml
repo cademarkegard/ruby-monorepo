@@ -1,0 +1,11 @@
+%h1 Hello World spelled in 
+   = @lhash.keys.size
+   languges!
+
+%h2{} \#{language ? HelloWorld.hello_world_in(language) : 'Choose Your Language'}
+%form{:action => "/"}
+   %select{:name => "l", :onchange => "submit()"}
+      %option{:value => ""}
+      \\#{@lhash.keys.map { |l| %(
+      %option{":" => "", :language => "", :value => "\#{l}"}> \#{l.to_s.capitalize}
+      ) }.join("\n")}

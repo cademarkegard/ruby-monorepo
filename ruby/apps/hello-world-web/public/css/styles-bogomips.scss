@@ -1,0 +1,20 @@
+
+%body.theme-bogomips {
+   font-family: Corbel, sans-serif; background-color: #FFFFE0;
+
+   h1, h2 { 
+      margin-bottom: 30px;
+      color: #F70;
+   }
+
+   %div.panel { 
+      margin: 100px auto; 
+      text-align: center; 
+      border: 1px solid #333; 
+      border-radius: 10px; 
+      width: 500px; 
+      box-shadow: 5px 5px 15px 0px #999; 
+      background-color: white;
+   }
+ }
+
