@@ -79,18 +79,22 @@ module HelloWorld
   }.freeze
 
   class << self
-    def determine_language(ln = :english)
-      return ln if HELLO_WORLD.key?(ln)
+    def supported_languages
+      HELLO_WORLD.keys.size
+    end
 
-      ln = HELLO_WORLD.keys.map(&:to_s).map(&:downcase).find { |lan| lan.start_with?(ln.to_s.downcase) }
-      ln || raise("Unknown language: #{ln} — use -L to see supported languages.")
+    def determine_language(language = :english)
+      return language if HELLO_WORLD.key?(language)
 
-      ln.to_sym
+      language = HELLO_WORLD.keys.map(&:to_s).map(&:downcase).find { |lan| lan.start_with?(language.to_s.downcase) }
+      language || raise("Unknown language: #{language} — use -L to see supported languages.")
+
+      language.to_sym
     end
 
     def hello_world_in(language = :english)
-      ln = determine_language(language)
-      HELLO_WORLD[ln]
+      language = determine_language(language)
+      HELLO_WORLD[language]
     end
   end
 end

@@ -3,7 +3,6 @@
 require 'spec_helper'
 require 'hello_world/cli'
 require 'hello_world/parser'
-
 require 'forwardable'
 
 module HelloWorld

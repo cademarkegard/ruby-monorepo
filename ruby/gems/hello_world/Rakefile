@@ -27,3 +27,13 @@ task build: :permissions
 RSpec::Core::RakeTask.new(:spec)
 
 task default: :spec
+
+desc 'Run HelloWorld via Rake'
+task :speak, [:lang] do |_t, args|
+  lib_path = File.expand_path("#{__dir__}/lib")
+  if File.exist?(lib_path) && !$LOAD_PATH.include?(lib_path)
+    $LOAD_PATH << lib_path
+  end
+  require 'hello_world/cli'
+  HelloWorld::CLI.new(Array(args[:lang])).execute!
+end

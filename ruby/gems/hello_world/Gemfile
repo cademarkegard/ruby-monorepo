@@ -2,15 +2,16 @@
 
 source 'https://rubygems.org'
 
-gemspec
+# TODO(kig) support gemspec
+# gemspec
 
-#gem('colored2')
-#
-#group :test, :development do
-#  gem('rake')
-#  gem('relaxed-rubocop')
-#  gem('rspec')
-#  gem('rubocop', '>= 0.73')
-#  gem('simplecov')
-#  gem('simplecov-formatter-badge')
-#end
+gem('colored2')
+
+group :test, :development do
+  gem('rake')
+  gem('relaxed-rubocop')
+  gem('rspec')
+  gem('rubocop', '>= 0.73')
+  gem('simplecov')
+  gem('simplecov-formatter-badge')
+end

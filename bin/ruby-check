@@ -5,13 +5,15 @@ export COLUMNS=90
 [[ -x bin/deps ]] && source bin/deps
 [[ ! -f .rubocop.yml && -x bin/setup ]] && source bin/setup
 
+find . -type d -name coverage -exec rm -rf {} \;
+
 info "Running Rubocop, please wait..."
 code=0
 run::set-next show-output-on
-run "rubocop -C true -F -D || rubocop -a"
+run "rubocop -C true -F -D 1>&1 >/dev/null || rubocop -a"
 
 run::set-next abort-on-error
-run "rubocop"
+run "rubocop -E -P"
 
-success "RuboCop ran successfully."
+success "Your Ruby style is great!"
 
