@@ -26,9 +26,9 @@ ruby_binary(
 ruby_test(
     name = "specs",
     srcs = glob(["spec/**/*.rb"]),
-    includes = ["lib"],
+    includes = ["ruby/gems/hello_world/lib"],
     main = "spec/spec_helper.rb",
-    rubyopt = ["-rrspec/autorun -I .."],
+    rubyopt = ["-rrspec/autorun"],
     deps = [
         ":hello-world-lib",
         "@hello-world-bundle//:libs",
