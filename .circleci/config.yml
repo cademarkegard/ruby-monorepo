@@ -64,14 +64,37 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Setup Bazel and Dependencies"
+          name: "Linux Build Environment"
+          command: |
+            sudo apt-get update
+            sudo apt-get install --reinstall build-essential
+
+      - run:
+          name: " ✅   Setup Bazel and Dependencies"
           command: |
             /usr/bin/env bash bin/setup
 
       - run:
-          name: "Run Bazel Build"
+          name: "Install Some Twinkie Crapola with Native Extensions"
+          command: |
+            gem install jaro_winkler -v '1.5.4' --verbose
+
+      - run:
+          name: " ✅   Bazel Build"
           command: |
             bazel build //...:all
+            bazel query //...:all
+
+      - run:
+          name: " ✅    Run HelloWorld CLI via Bazel"
+          command: |
+            bazel run //ruby/gems/hello_world:cli spanish
+            bazel run //ruby/gems/hello_world:cli japanese
+
+      - run:
+          name: " ✅   Run HelloWorld SPECS via Bazel"
+          command: |
+            bazel run //ruby/gems/hello_world:specs
 
 workflows:
   version: 2
