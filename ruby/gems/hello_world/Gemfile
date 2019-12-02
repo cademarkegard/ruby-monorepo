@@ -8,9 +8,7 @@ gem 'colored2'
 
 group :test, :development do
   gem 'rake'
-  gem 'relaxed-rubocop'
   gem 'rspec'
-  gem 'rubocop'
   gem 'simplecov'
   gem 'simplecov-formatter-badge'
 end

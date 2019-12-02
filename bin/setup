@@ -5,24 +5,19 @@ set +e
 
 # install BASH dependencies
 function setup::bash() {
-  [[ -x bin/deps ]] && source bin/deps
-
+  [[ -x bin/deps ]] && source "bin/deps"
+  
   run::set-all abort-on-error
-
-  hl::subtle "Setting up BASH defaults..."
-
+  
   [[ -x bin/setup ]] || { 
-    printf "Please run this script from the WORKSPACE root.\n"
-    exit 1
+    printf "Please run this script from the WORKSPACE root.\n"; exit 1
   }
-
   [[ -f WORKSPACE ]] || {
-    error "This script should run from the Project's Workspace Folder"
-    exit 1
+    error "This script should run from the Project's Workspace Folder" ; exit 1
   }
 }
 
-function setup::ruby() {
+function setup::rubocop() {
   declare -a required_global_gems=(
     rubocop
     rubocop-performance
@@ -34,11 +29,6 @@ function setup::ruby() {
     1.5.1
     2.4
   )
-
-  rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
-  if [[ ${rubygems_major_version} -lt 3 ]]; then
-    run "gem update --system"
-  fi
 
   # abort on error
   run::set-all abort-on-error
@@ -52,24 +42,44 @@ function setup::ruby() {
   done
 }
 
+function setup::upgrade-rubygems() {
+  local rubygems_major_version
+  rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
+  if [[ ${rubygems_major_version} -lt 3 ]]; then
+    run "gem update --system"
+  fi
+}
 
 function setup::hook() {
-  hl::subtle "Configuring your pre-commit git hook..."
-
-  [[ -L .git/hooks/pre-commit ]] || \
+  [[ -L .git/hooks/pre-commit ]] || {
+    hl::subtle "Configuring your pre-commit git hook..."
     run "ln -nfs bin/pre-commit .git/hooks/pre-commit"
-
-  br; hr
+  }
 }
 
 function setup::bazel::darwin() {
   run "xcode-select --install 2>/dev/null || true"
   run "sudo xcodebuild -license accept"
-  run "brew tap bazelbuild/tap"
-  run "brew install bazelbuild/tap/bazel || true"
-  run "brew link --overwrite bazel"
-  run "brew upgrade bazelbuild/tap/bazel"
-  if [[ -n $(which bazel) ]] ; then
+  
+  local local_bazel_version
+  local_bazel_version=$(cat .bazel-version)
+
+  local installed_bazel_version
+  installed_bazel_version=$(brew info bazelbuild/tap/bazel | grep stable | awk '{print $3}')
+
+  if [[ -z ${installed_bazel_version} ]]; then
+    run "brew tap bazelbuild/tap"
+    run "brew install bazelbuild/tap/bazel || true"
+    run "brew link --overwrite bazel"
+  else
+    info "Nice, Bazel (${installed_bazel_version}) is already installed ${bldgrn} ✔ "
+  fi
+
+  [[ ${installed_bazel_version} != "${local_bazel_version}" ]] && {
+    run "brew info brew upgrade bazelbuild/tap/bazel "
+  }
+
+  if [[ -n $(command -v bazel) ]] ; then
     success "Installed bazel version $(bazel --version)"
   else
     error "Still can't find bazel, something must have gone wrong."
@@ -87,36 +97,48 @@ function setup::bazel::linux() {
 }
 
 function setup::bazel() {
-  # [[ -n $(which bazel) ]] && {
-  #   info "Bazel appears already installed, version $(bazel --version)"
-  #   return 0
-  # }
-
   local os
-  os="$(uname -s | tr 'A-Z' 'a-z')"
-  info "You will be asked to enter your password for sudo.. might as well do it now?"
+  os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  info "You may be asked to enter your password for sudo..."
   sudo true
   local func="setup::bazel::${os}"
-  lib::util::is-a-function "${func}" && {
+  if lib::util::is-a-function "${func}"; then
     eval "${func}"
-  }
-}
-
-function setup::main() {
-  setup::bash
-  setup::ruby
-  setup::hook
-  setup::bazel
-
-  echo
-  success "Your repo is now ready for bazel."
-  echo; hr
-
-  if [[ -z ${CI} ]]; then
-    lib::run::ask "Would you like me to build it for you?"
-    run::set-next show-output-on
-    run "bazel build //...:all"
+  else
+    error "Operating System $(uname -s) is not currently supported."
   fi
 }
 
-setup::main "$@"
+function setup::ruby() {
+  setup::rubocop
+  setup::upgrade-rubygems
+}
+
+function setup::main() {
+  local action="$1"
+  func="setup::${action}"
+
+  if [[ -n ${action} ]]; then
+    lib::util::is-a-function "${func}" && {
+      h1 "Executing partial setup only: ${bldylw}${func}"
+      ${func}
+    }
+
+    return $?
+  fi
+  
+  setup::ruby
+  setup::bazel
+  [[ -n ${CI} ]] || setup::hook
+
+  success "Your repo is now ready for bazel." "Run 'bazel build //...:all' to build it."
+
+  return 0
+}
+
+setup::bash
+
+# Only execute main() if we were run as a script, not sourced in.
+bashmatic::validate-subshell 2>/dev/null && setup::main "$@"
+
+hr

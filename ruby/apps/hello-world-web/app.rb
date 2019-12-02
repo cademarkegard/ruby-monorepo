@@ -6,7 +6,7 @@ require 'hello_world'
 
 get '/' do
   language = HelloWorld.determine_language(params['l'])
-  <<~EOF
+  <<~HTML
     <html>
     <body style="font-family: Corbel, sans-serif; background-color: #FFFFE0;">
     <div style="margin: 100px auto; text-align: center; border: 1px solid #333; border-radius: 10px; width: 500px; box-shadow: 5px 5px 15px 0px #999; background-color: white;">
@@ -23,5 +23,5 @@ get '/' do
     </div>
     </body>
     </html>
-  EOF
+  HTML
 end

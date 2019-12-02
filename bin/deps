@@ -15,5 +15,3 @@ export BashMaticURL="https://github.com/kigster/bashmatic"
 }
 
 source "${BashMatic}/init.sh"
-
-

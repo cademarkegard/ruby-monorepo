@@ -18,11 +18,13 @@ if ENV['COVERAGE']
   end
 end
 
-puts "————————————————————————————"
-puts $LOAD_PATH.join("\n")
-puts Dir.pwd
-puts Dir.glob("**/*.rb").join("\n")
-puts "———————————————————————————"
+if ENV['DEBUG']
+  puts "————————————————————————————"
+  puts $LOAD_PATH.join("\n")
+  puts Dir.pwd
+  puts Dir.glob("**/*.rb").join("\n")
+  puts "———————————————————————————"
+end
 
 require 'hello_world/cli'
 

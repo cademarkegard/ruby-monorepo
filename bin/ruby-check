@@ -2,17 +2,15 @@
 
 export COLUMNS=90
 
-[[ -x bin/deps ]] && source bin/deps
-[[ ! -f .rubocop.yml && -x bin/setup ]] && source bin/setup
+[[ -x bin/deps ]] && source "bin/deps"
+[[ -x bin/setup ]] && bin/setup ruby
 
 find . -type d -name coverage -exec rm -rf {} \;
 
-info "Running Rubocop, please wait..."
-code=0
-run::set-next show-output-on
-run "rubocop -C true -F -D 1>&1 >/dev/null || rubocop -a"
+hl::subtle "Running Rubocop, please wait..."
+run "rubocop -C true -F -D 1>&1 >/dev/null || rubocop -a || true"
 
-run::set-next abort-on-error
+run::set-next abort-on-error show-output-on
 run "rubocop -E -P"
 
 success "Your Ruby style is great!"
