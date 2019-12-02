@@ -1,0 +1,26 @@
+inherit_mode:
+  merge:
+    - Include
+
+inherit_gem:
+  relaxed-rubocop: .rubocop.yml
+
+AllCops:
+  TargetRubyVersion: 2.6
+  UseCache: true
+  DefaultFormatter: progress
+  DisplayStyleGuide: true
+  DisplayCopNames: true
+    - '**/*.rb'
+    - '**/*.gemfile'
+    - '**/*.gemspec'
+    - '**/*.rake'
+    - '**/*.ru'
+    - '**/Gemfile'
+    - '**/Rakefile'
+  Exclude:
+    - "**/bazel-*/**/*"
+    - "**/examples/**/*"
+    - "**/BUILD"
+    - "**/.bazel"
+    - ./vendor/bundle/**/*

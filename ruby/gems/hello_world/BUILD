@@ -1,36 +1,36 @@
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["ruby/gems/hello_world/Gemfile",
-               "ruby/gems/hello_world/Gemfile.lock",
-               "ruby/gems/hello_world/hello_world.gemspec"])
+exports_files([
+    "ruby/gems/hello_world/Gemfile",
+    "ruby/gems/hello_world/Gemfile.lock",
+    "ruby/gems/hello_world/hello_world.gemspec",
+])
 
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_library")
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_test")
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary")
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "bundle_install")
+load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_test")
 
 ruby_library(
-    name = "lib",
+    name = "hello-world-lib",
     srcs = glob(["lib/**/*.rb"]),
-    )
+)
 
 ruby_binary(
     name = "cli",
     srcs = ["exe/hello-world"],
     main = "exe/hello-world",
     deps = [
-        ":lib",
-        "@hello_world-bundle//:libs"],
-    )
-
-separator = ' '
+        ":hello-world-lib",
+        "@hello-world-bundle//:libs",
+    ],
+)
 
 ruby_test(
     name = "specs",
-    main = "spec/spec_helper.rb",
-    rubyopt = ["-rrspec/autorun"],
     srcs = glob(["spec/**/*.rb"]),
+    includes = ["lib"],
+    main = "spec/spec_helper.rb",
+    rubyopt = ["-rrspec/autorun -I .."],
     deps = [
-        ":lib",
-        "@hello_world-bundle//:libs"]
-    )
+        ":hello-world-lib",
+        "@hello-world-bundle//:libs",
+    ],
+)

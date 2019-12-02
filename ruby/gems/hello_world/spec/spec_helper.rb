@@ -11,12 +11,18 @@ if ENV['COVERAGE']
         SimpleCov::Formatter::HTMLFormatter,
         SimpleCov::Formatter::BadgeFormatter,
       ]
-  )
+    )
 
   SimpleCov.start do
     add_filter(/spec/)
   end
 end
+
+puts "————————————————————————————"
+puts $LOAD_PATH.join("\n")
+puts Dir.pwd
+puts Dir.glob("**/*.rb").join("\n")
+puts "———————————————————————————"
 
 require 'hello_world/cli'
 

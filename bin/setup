@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+[[ -x bin/deps ]] && source bin/deps
+[[ -f WORKSPACE ]] || {
+  error "This script should run from the Project's Workspace Folder"
+  exit 1
+}
+
+hl::subtle "Bazel/Repo setup script, to save you time!"
+
+declare -a required_global_gems=(
+  rubocop
+  rubocop-performance
+  relaxed-rubocop
+)
+
+declare -a required_gem_versions=(
+  0.76.0
+  1.5.1
+  2.4
+)
+
+rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
+
+if [[ ${rubygems_major_version} -lt 3 ]]; then
+  run "gem update --system"
+fi
+
+# abort on error
+run::set-all abort-on-error
+
+index=0 
+for gem in ${required_global_gems[@]}; do
+  version=${required_gem_versions[${index}]}
+  lib::gem::install ${gem} ${version}
+  index=$(( $index + 1 ))
+done
+
+[[ -L .git/hooks/pre-commit ]] || run "ln -nfs bin/pre-commit .git/hooks/pre-commit"
+
+if [[ ! -f .rubocop.yml ]] ; then
+  run "cp .templates/.rubocop.yml .rubocop.yml"
+fi
+
+printf "\n\n"; hr
+success "Your repo is now ready for bazel."
