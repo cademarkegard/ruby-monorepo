@@ -9,12 +9,13 @@ end
 require 'hello_world/cli'
 require 'colored2'
 
-code = 1
+code = 0
 
 begin
   ::HelloWorld::CLI.new(ARGV).execute!
 rescue StandardError => e
   warn e.message.bold.red
+  code = 1
 ensure
   exit code
 end

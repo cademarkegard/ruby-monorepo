@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require 'simplecov'
-require 'simplecov-formatter-badge'
 
 if ENV['COVERAGE']
+  require 'simplecov'
+  require 'simplecov-formatter-badge'
   SimpleCov.formatter =
     SimpleCov::Formatter::MultiFormatter.new(
       [
@@ -18,11 +18,13 @@ if ENV['COVERAGE']
   end
 end
 
-puts "————————————————————————————"
-puts $LOAD_PATH.join("\n")
-puts Dir.pwd
-puts Dir.glob("**/*.rb").join("\n")
-puts "———————————————————————————"
+if ENV['DEBUG']
+  puts "————————————————————————————"
+  puts $LOAD_PATH.join("\n")
+  puts Dir.pwd
+  puts Dir.glob("**/*.rb").join("\n")
+  puts "———————————————————————————"
+end
 
 require 'hello_world/cli'
 

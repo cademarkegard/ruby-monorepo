@@ -47,13 +47,40 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Run RuboCop, but Skip Bundle Install"
+          name: " ✅   Run Ruby Style Check"
           command: |
-            cd ${HELLO_WORLD_PATH}
-            function gem.lock.version() { grep " $1 (" Gemfile.lock | awk '{print $2}' | tr -d '()'; }
-            gem install rubocop --version $(gem.lock.version rubocop) --no-doc
-            gem install relaxed-rubocop --version $(gem.lock.version relaxed-rubocop) --no-doc
-            rubocop -E -P
+            /usr/bin/env bash bin/ruby-check
+
+  bazel:
+    docker:
+      - image: circleci/ruby:2.6.5
+    working_directory: /home/circleci/repo
+    environment:
+      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+    steps:
+      - checkout
+      - run:
+          name: " ✅   Run Setup"
+          command: |
+            /usr/bin/env bash bin/setup
+
+      - run:
+          name: " ✅   Run Bazel Commands & Build"
+          command: |
+            bazel query //...:all
+            echo
+            bazel build //...:all
+
+      - run:
+          name: " ✅    Run HelloWorld CLI via Bazel"
+          command: |
+            bazel run //ruby/gems/hello_world:cli spanish
+            bazel run //ruby/gems/hello_world:cli japanese
+
+      - run:
+          name: " ✅   Run HelloWorld SPECS via Bazel"
+          command: |
+            bazel run //ruby/gems/hello_world:specs
 
 workflows:
   version: 2
@@ -61,3 +88,4 @@ workflows:
     jobs:
       - build
       - style
+      - bazel
