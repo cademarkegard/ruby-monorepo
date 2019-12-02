@@ -55,9 +55,28 @@ jobs:
             gem install relaxed-rubocop --version $(gem.lock.version relaxed-rubocop) --no-doc
             rubocop -E -P
 
+  bazel:
+    docker:
+      - image: circleci/ruby:2.6.5
+    working_directory: /home/circleci/repo
+    environment:
+      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+    steps:
+      - checkout
+      - run:
+          name: "Setup Bazel and Dependencies"
+          command: |
+            /usr/bin/env bash bin/setup
+
+      - run:
+          name: "Run Bazel Build"
+          command: |
+            bazel build //...:all
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
       - style
+      - bazel

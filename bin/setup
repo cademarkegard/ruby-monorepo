@@ -1,46 +1,122 @@
 #!/usr/bin/env bash
 
-[[ -x bin/deps ]] && source bin/deps
-[[ -f WORKSPACE ]] || {
-  error "This script should run from the Project's Workspace Folder"
-  exit 1
+# we handle errors using  run::set-all abort-on-error below
+set +e 
+
+# install BASH dependencies
+function setup::bash() {
+  [[ -x bin/deps ]] && source bin/deps
+
+  run::set-all abort-on-error
+
+  hl::subtle "Setting up BASH defaults..."
+
+  [[ -x bin/setup ]] || { 
+    printf "Please run this script from the WORKSPACE root.\n"
+    exit 1
+  }
+
+  [[ -f WORKSPACE ]] || {
+    error "This script should run from the Project's Workspace Folder"
+    exit 1
+  }
 }
 
-hl::subtle "Bazel/Repo setup script, to save you time!"
+function setup::ruby() {
+  declare -a required_global_gems=(
+    rubocop
+    rubocop-performance
+    relaxed-rubocop
+  )
 
-declare -a required_global_gems=(
-  rubocop
-  rubocop-performance
-  relaxed-rubocop
-)
+  declare -a required_gem_versions=(
+    0.76.0
+    1.5.1
+    2.4
+  )
 
-declare -a required_gem_versions=(
-  0.76.0
-  1.5.1
-  2.4
-)
+  rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
+  if [[ ${rubygems_major_version} -lt 3 ]]; then
+    run "gem update --system"
+  fi
 
-rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
+  # abort on error
+  run::set-all abort-on-error
 
-if [[ ${rubygems_major_version} -lt 3 ]]; then
-  run "gem update --system"
-fi
+  hl::subtle "Installing Globally rubocop gems..."
+  local index=0 
+  for gem in "${required_global_gems[@]}"; do
+    version="${required_gem_versions[${index}]}"
+    lib::gem::install "${gem}" "${version}"
+    index=$(( "${index}" + 1 ))
+  done
+}
 
-# abort on error
-run::set-all abort-on-error
 
-index=0 
-for gem in ${required_global_gems[@]}; do
-  version=${required_gem_versions[${index}]}
-  lib::gem::install ${gem} ${version}
-  index=$(( $index + 1 ))
-done
+function setup::hook() {
+  hl::subtle "Configuring your pre-commit git hook..."
 
-[[ -L .git/hooks/pre-commit ]] || run "ln -nfs bin/pre-commit .git/hooks/pre-commit"
+  [[ -L .git/hooks/pre-commit ]] || \
+    run "ln -nfs bin/pre-commit .git/hooks/pre-commit"
 
-if [[ ! -f .rubocop.yml ]] ; then
-  run "cp .templates/.rubocop.yml .rubocop.yml"
-fi
+  br; hr
+}
 
-printf "\n\n"; hr
-success "Your repo is now ready for bazel."
+function setup::bazel::darwin() {
+  run "xcode-select --install 2>/dev/null || true"
+  run "sudo xcodebuild -license accept"
+  run "brew tap bazelbuild/tap"
+  run "brew install bazelbuild/tap/bazel || true"
+  run "brew link --overwrite bazel"
+  run "brew upgrade bazelbuild/tap/bazel"
+  if [[ -n $(which bazel) ]] ; then
+    success "Installed bazel version $(bazel --version)"
+  else
+    error "Still can't find bazel, something must have gone wrong."
+    exit 1
+  fi
+}
+
+function setup::bazel::linux() {
+  run "sudo apt install curl"
+  run "curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -"
+  run "echo \"deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8\" | sudo tee /etc/apt/sources.list.d/bazel.list"
+  run "sudo apt update && sudo apt install bazel"
+  run "sudo apt update && sudo apt full-upgrade"
+  run "sudo apt install openjdk-11-jdk"
+}
+
+function setup::bazel() {
+  # [[ -n $(which bazel) ]] && {
+  #   info "Bazel appears already installed, version $(bazel --version)"
+  #   return 0
+  # }
+
+  local os
+  os="$(uname -s | tr 'A-Z' 'a-z')"
+  info "You will be asked to enter your password for sudo.. might as well do it now?"
+  sudo true
+  local func="setup::bazel::${os}"
+  lib::util::is-a-function "${func}" && {
+    eval "${func}"
+  }
+}
+
+function setup::main() {
+  setup::bash
+  setup::ruby
+  setup::hook
+  setup::bazel
+
+  echo
+  success "Your repo is now ready for bazel."
+  echo; hr
+
+  if [[ -z ${CI} ]]; then
+    lib::run::ask "Would you like me to build it for you?"
+    run::set-next show-output-on
+    run "bazel build //...:all"
+  fi
+}
+
+setup::main "$@"
