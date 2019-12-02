@@ -9,6 +9,4 @@ gem 'colored2'
 group :test, :development do
   gem 'rake'
   gem 'rspec'
-  gem 'simplecov'
-  gem 'simplecov-formatter-badge'
 end

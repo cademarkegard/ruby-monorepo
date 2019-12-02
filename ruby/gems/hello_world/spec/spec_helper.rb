@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require 'simplecov'
-require 'simplecov-formatter-badge'
 
 if ENV['COVERAGE']
+  require 'simplecov'
+  require 'simplecov-formatter-badge'
   SimpleCov.formatter =
     SimpleCov::Formatter::MultiFormatter.new(
       [
