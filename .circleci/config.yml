@@ -47,13 +47,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Run RuboCop, but Skip Bundle Install"
+          name: " ✅   Run Ruby Style Check"
           command: |
-            cd ${HELLO_WORLD_PATH}
-            function gem.lock.version() { grep " $1 (" Gemfile.lock | awk '{print $2}' | tr -d '()'; }
-            gem install rubocop --version $(gem.lock.version rubocop) --no-doc
-            gem install relaxed-rubocop --version $(gem.lock.version relaxed-rubocop) --no-doc
-            rubocop -E -P
+            /usr/bin/env bash bin/ruby-check
 
   bazel:
     docker:
@@ -64,26 +60,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Linux Build Environment"
-          command: |
-            sudo apt-get update
-            sudo apt-get install --reinstall build-essential
-
-      - run:
-          name: " ✅   Setup Bazel and Dependencies"
+          name: " ✅   Run Setup"
           command: |
             /usr/bin/env bash bin/setup
 
       - run:
-          name: "Install Some Twinkie Crapola with Native Extensions"
+          name: " ✅   Run Bazel Commands & Build"
           command: |
-            gem install jaro_winkler -v '1.5.4' --verbose
-
-      - run:
-          name: " ✅   Bazel Build"
-          command: |
-            bazel build //...:all
             bazel query //...:all
+            echo
+            bazel build //...:all
 
       - run:
           name: " ✅    Run HelloWorld CLI via Bazel"
