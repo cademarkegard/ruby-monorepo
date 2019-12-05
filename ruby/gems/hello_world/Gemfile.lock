@@ -25,6 +25,3 @@ DEPENDENCIES
   colored2
   rake
   rspec
-
-BUNDLED WITH
-   1.17.3

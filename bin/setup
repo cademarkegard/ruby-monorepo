@@ -40,6 +40,15 @@ function setup::rubocop() {
     lib::gem::install "${gem}" "${version}"
     index=$(( "${index}" + 1 ))
   done
+
+  hl::subtle "Dealing with Bundler..."
+  run "cd ruby/gems/hello_world"
+  run "bundle check || bundle install"
+  hl::subtle "Running the executable, shoudl print Hello World in Russian!"
+  run::set-next show-output-on
+  run "bundle exec exe/hello-world russian"
+  hr
+  run "cd ../../../"
 }
 
 function setup::upgrade-rubygems() {
@@ -110,8 +119,8 @@ function setup::bazel() {
 }
 
 function setup::ruby() {
-  setup::rubocop
   setup::upgrade-rubygems
+  setup::rubocop
 }
 
 function setup::main() {
