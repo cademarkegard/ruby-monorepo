@@ -1,0 +1,1 @@
+{"statusCode":200,"body":"{\n  \"message\": \"Hello from Lambda!\",\n  \"language\": \"japanese\"\n}"}

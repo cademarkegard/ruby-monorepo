@@ -1,0 +1,33 @@
+PATH
+  remote: ../../gems/hello_world
+  specs:
+    hello_world (0.1.0)
+      colored2
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    colored2 (3.1.2)
+    mustermann (1.0.3)
+    rack (2.0.7)
+    rack-protection (2.0.7)
+      rack
+    shotgun (0.9.2)
+      rack (>= 1.0)
+    sinatra (2.0.7)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.7)
+      tilt (~> 2.0)
+    tilt (2.0.10)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  hello_world!
+  shotgun
+  sinatra
+
+BUNDLED WITH
+   2.1.0.pre.3

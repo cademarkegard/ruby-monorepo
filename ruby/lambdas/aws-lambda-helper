@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Script to build, upload and invoke lambda on AWS.
+
+set -e
+export bold_green='\e[1;32m'
+export bold_yellow='\e[1;33m'
+export bold_red='\e[1;31m'
+export bold_blue='\e[1;34m'
+export bold_white='\e[1;37m'
+export purple='\e[0;35m'
+export bg_sky_blue="\033[48;5;39m"
+export clr='\e[0m'
+
+export root=$(pwd -P)
+
+set +x
+
+run() {
+  cd "${root}"
+  printf ${purple}
+  set -x
+  $*
+  set +x
+  printf ${clr}
+}
+
+run::aws() {
+  run aws $*
+}
+
+lambda::zip() {
+  cd "${lambda_dir}"
+  run "zip -r ../${lambda_zip} ."
+  cd - >/dev/null
+}
+
+lambda::create() {
+  run::aws lambda create-function \
+    --function-name ${lambda_name} \
+    --zip-file fileb://hello-world.zip \
+    --handler ${lambda_handler} \
+    --runtime ruby2.5 \
+    --role "${lambda_role}"
+}
+
+lambda::update() {
+  run::aws lambda update-function-code \
+    --function-name ${lambda_name} \
+    --zip-file fileb://${lambda_zip}
+}
+
+lambda::invoke() {
+  run::aws lambda invoke \
+    --function-name ${lambda_name} \
+    --payload '{ "language": "japanese"}' response.json
+}
+
+usage() {
+  printf "
+USAGE:
+  aws-lambda-helper <lambda-directory> [ create | update | invoke ] 
+
+EXAMPLE:
+  aws-lambda-helper hello-world create
+  aws-lambda-helper hello-world invoke
+"
+  exit 0
+}
+
+if [[ "${#@}" -lt 2 ]]; then
+  usage
+fi
+
+directory="$1"
+[[ -d "${directory}" ]] || {
+  printf "Error: invalid directory ${directory}, does not exist."
+  exit 1
+}
+
+func="lambda::$2"
+[[ -n $(type "${func}" 2>/dev/null) ]] || {
+  printf "Error: invalid action $2, does not exist."
+  exit 1
+}
+
+lambda_role="arn:aws:iam::572598792135:role/lambda/lambda@default"
+lambda_name="infra-kig-ruby-hello-world"
+lambda_dir="${directory}"
+lambda_file="lambda_function"
+lambda_handler_name="lambda_handler"
+lambda_handler="${lambda_file}.${lambda_handler_name}"
+lambda_zip="${lambda_dir}.zip"
+
+eval "${func}"
