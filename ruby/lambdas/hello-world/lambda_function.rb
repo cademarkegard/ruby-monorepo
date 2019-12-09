@@ -15,10 +15,14 @@ require 'json'
 # identity                      – (mobile apps) Information about the Amazon Cognito identity that authorized the request.
 # client_context                – (mobile apps) Client context that's provided to Lambda by the client application.
 
-def lambda_handler(event:, context:)
+def lambda_handler(event:, _context:)
   if event["queryStringParameters"]
     # API gateway
   else
-  
-  { statusCode: 200, body: JSON.pretty_generate({ message: 'Hello from Lambda!' }.merge(event.to_h)) }
+    {
+      statusCode: 200,
+      body: JSON.pretty_generate({ message: 'Hello from Lambda!' }.
+        merge(event.to_h))
+    }
+  end
 end

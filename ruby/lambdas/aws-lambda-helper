@@ -19,7 +19,7 @@ run() {
   cd "${root}"
   printf ${purple}
   set -x
-  $*
+  eval "$*"
   set +x
   printf ${clr}
 }
