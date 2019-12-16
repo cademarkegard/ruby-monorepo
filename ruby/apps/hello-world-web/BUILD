@@ -19,6 +19,7 @@ ruby_binary(
     deps = [
         "//ruby/gems/hello_world:lib",
         "@bundle.hello-world-web//:libs",
+        "@bundle.hello-world-gem//:libs",
     ],
 )
 
