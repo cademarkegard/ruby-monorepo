@@ -70,6 +70,8 @@ jobs:
       HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
     steps:
       - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y libgmp-dev
       - run:
           name: " ✅   Run Setup"
           command: |
