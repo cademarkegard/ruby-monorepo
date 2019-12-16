@@ -20,12 +20,16 @@
 
 **The goal of this BazelRuby integration project is to make Ruby a first-class citizen in the Bazel eco-system, to be able to support very large Ruby mono-repo, and to take advantage of the parallel builds and fast caching that Bazel is famous for.**
 
-
 # A Working Example of a Ruby Mono-Repo
 
 > NOTE: This is still work in progress, which attempts to bridge the world of Ruby gems and applications with the Bazel Build System.
 
 > NOTE: This project has been developed and tested on Mac OS-X. If you are on Windows, your mileage may vary.
+
+**The following screen-cast shows the basic usage of the bazel commands.**
+
+<a href="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT" target="_blank"><img src="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT.svg" width="600"/></a>
+
 
 ## Setting up Bazel
 
@@ -39,7 +43,7 @@ bin/setup
 
 You should see something like this:
 
-![setup](doc/ruby-mono-setup.jpg)
+<a href="doc/ruby-mono-setup.jpg"><img src="doc/ruby-mono-setup.jpg" width="500"></a>
 
 ## Usage
 
@@ -77,7 +81,7 @@ bundle exec exe/hello-worldr ru af kaz uz geo
 
 You might see something like the following output:
 
-![hello-world](doc/hello-world-cli-example.jpg)
+<a href="doc/hello-world-cli-example.jpg"><img src="doc/hello-world-cli-example.jpg" width="500"></a>
 
 #### Ruby Sinatra Web App that uses `hello_world` gem
 
@@ -101,7 +105,7 @@ bin/start
 
 If you click on [http://127.0.0.1:9393/](http://127.0.0.1:9393/) URL shown above, you should see a minimalistic user interface:
 
-![web-ui](doc/web-ui.jpg?12)
+<a href="doc/web-ui.jpg"><img src="doc/web-ui.jpg" width="500"></a>
 
 #### AWS Lambda
 
@@ -162,8 +166,7 @@ bazel test //ruby/gems/hello_world:specs
 
 It's best to show the results of running specs in a screenshot:
 
-![tests](doc/gem-tests.jpg)
-
+<a href="doc/gem-tests.jpg"><img src="doc/gem-tests.jpg" width="500"></a>
 
 #### 4. Running Sinatra Web Server via Bazel
 
@@ -171,7 +174,7 @@ This is, perhaps, the most complicated Bazel task in this repo to date. This is 
 
 Here is the screenshot of running the server on the foreground, and hitting it a few times with requests:
 
-![web-bazel](doc/web-ui-bazel.jpg)
+<a href="doc/web-ui-bazel.jpg"><img src="doc/web-ui-bazel.jpg" width="500"></a>
 
 ---
 
