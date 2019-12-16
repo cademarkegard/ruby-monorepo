@@ -4,7 +4,7 @@ require 'optparse'
 require 'hello_world'
 
 module HelloWorld
-  Options = Struct.new(:language, :list, :help)
+  Options = Struct.new(:languages, :list, :help)
 
   class Parser
     @cli = nil
@@ -18,7 +18,7 @@ module HelloWorld
         Options.new.tap do |args|
           opt_parser = define_option_parser(args)
           opt_parser.parse!(argv)
-          args.language = argv.first || 'en'
+          args.languages = argv.reject { |a| a =~ /^-/ }
         end
       end
 

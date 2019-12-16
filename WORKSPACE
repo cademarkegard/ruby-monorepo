@@ -27,9 +27,16 @@ ruby_register_toolchains()
 load("@bazelruby_ruby_rules//ruby:defs.bzl", "bundle_install")
 
 bundle_install(
-    name = "hello-world-bundle",
+    name = "bundle.hello-world-gem",
     gemfile = "//ruby/gems/hello_world:Gemfile",
     gemfile_lock = "//ruby/gems/hello_world:Gemfile.lock",
     #gemspec = "//ruby/gems/hello_world:hello_world.gemspec",
+    visibility = ["//visibility:public"],
+)
+
+bundle_install(
+    name = "bundle.hello-world-web",
+    gemfile = "//ruby/apps/hello-world-web:Gemfile",
+    gemfile_lock = "//ruby/apps/hello-world-web:Gemfile.lock",
     visibility = ["//visibility:public"],
 )

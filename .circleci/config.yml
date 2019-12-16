@@ -51,6 +51,17 @@ jobs:
           command: |
             /usr/bin/env bash bin/ruby-check
 
+      - run:
+          name: " Check if GCC/CC are installed"
+          command: |
+            set +e
+            which gcc
+            which cc
+            which cc1
+            cc --version  || true
+            cc1 --version || true
+            gcc --version || true
+
   bazel:
     docker:
       - image: circleci/ruby:2.6.5
@@ -74,13 +85,17 @@ jobs:
       - run:
           name: " ✅    Run HelloWorld CLI via Bazel"
           command: |
-            bazel run //ruby/gems/hello_world:cli spanish
-            bazel run //ruby/gems/hello_world:cli japanese
+            bazel run //ruby/gems/hello_world:cli spanish japanese turkish russian
 
       - run:
           name: " ✅   Run HelloWorld SPECS via Bazel"
           command: |
             bazel run //ruby/gems/hello_world:specs
+
+      - run:
+          name: " ✅   Build Sinatra App with Bazel"
+          command: |
+            bazel build //ruby/apps/hello-world-web:all
 
 workflows:
   version: 2

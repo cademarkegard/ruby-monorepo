@@ -4,14 +4,6 @@
 set -e
 set +x
 
-export bold_green='\e[1;32m'
-export bold_yellow='\e[1;33m'
-export bold_red='\e[1;31m'
-export bold_blue='\e[1;34m'
-export bold_white='\e[1;37m'
-export purple='\e[0;35m'
-export bg_sky_blue="\033[48;5;39m"
-export clr='\e[0m'
 export root=$(pwd -P)
 
 validate_directory() {

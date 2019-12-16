@@ -1,5 +1,7 @@
 ## Lambda
 
+> NOTE: This subdirectory has not yet been made bazel-aware and exists for future integration.
+
 ### Event Argument to the Handler
 
 #### Through the API Gateway
