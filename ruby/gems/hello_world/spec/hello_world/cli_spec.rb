@@ -19,12 +19,16 @@ module HelloWorld
       end
     end
 
-    describe 'en' do
-      let(:argv) { %w(english) }
+    LANGUAGES = %i(english turkish french).freeze
 
-      it 'should show hello world in English' do
-        expect(cli).to receive(:response).with('English — Hello World!')
-        cli.execute!
+    LANGUAGES.each do |lan|
+      describe 'en' do
+        let(:argv) { [lan] }
+        before { cli.execute! }
+
+        it 'should show hello world in English' do
+          expect(cli.responses[lan]).to eq HelloWorld.hello_world_in(lan)
+        end
       end
     end
   end

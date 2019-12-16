@@ -2,9 +2,10 @@
 
 require_relative 'parser'
 require 'colored2'
+require 'stringio'
 module HelloWorld
   class CLI
-    attr_reader :stdin, :stdout, :stderr, :kernel, :argv, :args
+    attr_reader :stdin, :stdout, :stderr, :kernel, :argv, :args, :responses
 
     class << self
       def create(
@@ -26,23 +27,30 @@ module HelloWorld
       @kernel = kernel
 
       @args = Parser.parse(@argv, self)
+
+      @responses = {}
     end
 
     def execute!
       return if args.help
 
-      output = if args.list
-                 hw_hash.keys.join("\n")
-               elsif args.language
-                 ln = hw.determine_language(args.language)
-                 "#{ln.to_s.capitalize.bold.blue} — #{hw.hello_world_in(ln).yellow}"
-               end
+      output = StringIO.new
+
+      output.puts hw_hash.keys.join("\n") if args.list
+
+      args.languages.each do |language|
+        speakish = hw.determine_language(language)
+        responses[speakish] = hw.hello_world_in(speakish)
+      end
 
       response(output)
     end
 
-    def response(text)
-      puts text
+    def response(stringio)
+      responses.each_pair do |language, hello_world|
+        stringio.puts "#{(sprintf '%<hw>20.20s', hw: language.to_s.capitalize).bold.blue} — #{hello_world.yellow}\n\n"
+      end
+      stringio.string
     end
 
     def hw_hash

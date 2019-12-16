@@ -12,7 +12,7 @@ require 'colored2'
 code = 0
 
 begin
-  ::HelloWorld::CLI.new(ARGV).execute!
+  puts ::HelloWorld::CLI.new(ARGV).execute!
 rescue StandardError => e
   warn e.message.bold.red
   code = 1

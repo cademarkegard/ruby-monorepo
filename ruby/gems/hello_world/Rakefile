@@ -35,5 +35,5 @@ task :speak, [:lang] do |_t, args|
     $LOAD_PATH << lib_path
   end
   require 'hello_world/cli'
-  HelloWorld::CLI.new(Array(args[:lang])).execute!
+  puts HelloWorld::CLI.new(Array(args[:lang])).execute!
 end
