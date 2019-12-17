@@ -2,7 +2,6 @@
 **/.DS_Store
 **/.idea/
 **/*.iml
-.ruby-version
 /*.enc
 /.bundle/
 /.idea/

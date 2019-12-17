@@ -15,6 +15,7 @@ AllCops:
     - '**/Gemfile'
     - '**/Rakefile'
   Exclude:
+    - "**/external/bundle/**/*"
     - "**/bazel-*/**/*"
     - "**/examples/**/*"
     - "**/BUILD"
@@ -24,4 +25,3 @@ AllCops:
 Layout/HashAlignment:
   Enabled: true
   EnforcedColonStyle: table
-  

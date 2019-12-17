@@ -1,61 +1,61 @@
 #!/usr/bin/env bash
 
 # we handle errors using  run::set-all abort-on-error below
-set +e 
+
+export BUNDLER_DEFAULT_VERSION="2.1.2"
+
+set +e
 
 # install BASH dependencies
 function setup::bash() {
   [[ -x bin/deps ]] && source "bin/deps"
-  
   run::set-all abort-on-error
-  
-  [[ -x bin/setup ]] || { 
-    printf "Please run this script from the WORKSPACE root.\n"; exit 1
+  [[ -x bin/setup && -f WORKSPACE ]] || {
+    printf "Please run this script from the WORKSPACE root.\n"
+    exit 1
   }
-  [[ -f WORKSPACE ]] || {
-    error "This script should run from the Project's Workspace Folder" ; exit 1
-  }
+
+  export ProjectRoot=$(pwd -P)
 }
 
 function setup::rubocop() {
-  declare -a required_global_gems=(
-    rubocop
-    rubocop-performance
-    relaxed-rubocop
-  )
-
-  declare -a required_gem_versions=(
-    0.76.0
-    1.5.1
-    2.4
-  )
-
   # abort on error
   run::set-all abort-on-error
-
   hl::subtle "Installing Globally rubocop gems..."
-  local index=0 
-  for gem in "${required_global_gems[@]}"; do
-    version="${required_gem_versions[${index}]}"
-    lib::gem::install "${gem}" "${version}"
-    index=$(( "${index}" + 1 ))
-  done
 
-  hl::subtle "Dealing with Bundler..."
+  run "bundle_check || bundle install"
+
   run "cd ruby/gems/hello_world"
-  run "bundle check || bundle install"
-  hl::subtle "Running the executable, shoudl print Hello World in Russian!"
-  run::set-next show-output-on
-  run "bundle exec exe/hello-world russian"
-  hr
-  run "cd ../../../"
+  run "bundle_check || bundle install"
+
+  run "cd ../../../ruby/apps/hello-world-web"
+  run "bundle_check || bundle install"
+
+  run "cd ${ProjectRoot}"
+}
+
+__setup::gemfile-bundle-version() {
+  if tail -2 Gemfile.lock | grep -q BUNDLED; then
+    tail -1 Gemfile.lock | tr -d ' '
+  else
+    printf ${BUNDLER_DEFAULT_VERSION}
+  fi
 }
 
 function setup::upgrade-rubygems() {
   local rubygems_major_version
-  rubygems_major_version=$(gem --version | awk '{print $3}' | cut -d. -f 1)
-  if [[ ${rubygems_major_version} -lt 3 ]]; then
+  gem_version_i=$(lib::util::ver-to-i $(gem --version))
+  if [[ ${gem_version_i} -lt 103001002 ]]; then
     run "gem update --system"
+  fi
+
+  local bundler_version=0
+  local bundler_target_version="$(lib::util::ver-to-i $(__setup::gemfile-bundle-version))"
+  if [[ -n $(command -v bundler) ]]; then
+    bundler_version=$(lib::util::ver-to-i $(bundle --version | tr -d '[a-zA-Z ]'))
+    [[ ${bundler_version} -lt ${bundler_target_version} ]] && run "gem update bundler --no-doc"
+  else
+    run "gem install bundler"
   fi
 }
 
@@ -66,43 +66,33 @@ function setup::hook() {
   }
 }
 
-function setup::bazel::darwin() {
+function setup::xcode() {
   run "xcode-select --install 2>/dev/null || true"
   run "sudo xcodebuild -license accept"
-  
-  local local_bazel_version
-  local_bazel_version=$(cat .bazel-version)
+}
 
-  local installed_bazel_version
-  installed_bazel_version=$(brew info bazelbuild/tap/bazel | grep stable | awk '{print $3}')
-
-  if [[ -z ${installed_bazel_version} ]]; then
+function setup::bazel::darwin() {
+  brew info bazelbuild/tap/bazelisk 2>/dev/null || {
     run "brew tap bazelbuild/tap"
-    run "brew install bazelbuild/tap/bazel || true"
-    run "brew link --overwrite bazel"
-  else
-    info "Nice, Bazel (${installed_bazel_version}) is already installed ${bldgrn} ✔ "
-  fi
-
-  [[ ${installed_bazel_version} != "${local_bazel_version}" ]] && {
-    run "brew info brew upgrade bazelbuild/tap/bazel "
+    lib::brew::package::install bazelbuild/tap/bazelisk
+    run "brew link --overwrite bazel || true"
   }
 
-  if [[ -n $(command -v bazel) ]] ; then
+  if [[ -n $(command -v bazel) ]]; then
     success "Installed bazel version $(bazel --version)"
   else
     error "Still can't find bazel, something must have gone wrong."
     exit 1
   fi
+
+  setup::xcode
 }
 
 function setup::bazel::linux() {
-  run "sudo apt install curl"
-  run "curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -"
-  run "echo \"deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8\" | sudo tee /etc/apt/sources.list.d/bazel.list"
-  run "sudo apt update && sudo apt install bazel"
-  run "sudo apt update && sudo apt full-upgrade"
-  run "sudo apt install openjdk-11-jdk"
+  run "sudo apt update -y || true"
+  run "sudo apt-get install -y libreadline-dev zlib1g-dev"
+  run "sudo curl -L -o /usr/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.0/bazelisk-linux-amd64"
+  run "sudo chmod +x /usr/bin/bazel"
 }
 
 function setup::bazel() {
@@ -134,15 +124,16 @@ function setup::main() {
     }
 
     return $?
+  else
+    setup::ruby
+    setup::bazel
+
+    [[ -n ${CI} ]] || setup::hook
+
+    success "Your repo is now ready for bazel." "Run 'bazel build //...:all' to build it."
+
+    return 0
   fi
-  
-  setup::ruby
-  setup::bazel
-  [[ -n ${CI} ]] || setup::hook
-
-  success "Your repo is now ready for bazel." "Run 'bazel build //...:all' to build it."
-
-  return 0
 }
 
 setup::bash
@@ -150,4 +141,4 @@ setup::bash
 # Only execute main() if we were run as a script, not sourced in.
 bashmatic::validate-subshell 2>/dev/null && setup::main "$@"
 
-hr
+

@@ -2,54 +2,55 @@
 #
 # Check https://circleci.com/docs/2.0/language-ruby/ for more details
 #
-version: 2
+version: 2.1
 jobs:
-  build:
+  rspec: &bazel_defaults
     docker:
-      - image: circleci/ruby:2.6.5
+      - image: bazelruby/ruby-2.6.5
     working_directory: /home/circleci/repo
     environment:
+      HOME: /home/circleci
+      REPO_PATH: /home/circleci/repo
       HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+      PATH: "/usr/local/bin:/usr/bin:/sbin:/opt/bin:/home/circleci/repo/bin:/bin:/sbin:/usr/sbin:${PATH}"
+      BUNDLE_PATH: /home/circleci/.bundle_cache
+      BAZEL_OPTS: "--host_jvm_args=-Xmx400m --host_jvm_args=-Xms400m"
+      BAZEL_BUILD_OPTS: "--curses=no --verbose_failures --jobs 10"
+      BAZEL_TEST_OPTS: "--verbose_failures --test_output=streamed --test_verbose_timeout_warnings "
 
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "ruby/gems/hello_world/Gemfile.lock" }}
       - run:
-          name: Install Bundled Dependencies
+          name: Run Setup
           command: |
-            cd ${HELLO_WORLD_PATH} && bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-      - save_cache:
-          paths:
-            - ${HELLO_WORLD_PATH}/vendor/bundle
-          key: v1-dependencies-{{ checksum "${HELLO_WORLD_PATH}/Gemfile.lock" }}
-
-      - run:
-          name: Run Bundler
-          command: |
-            cd ${HELLO_WORLD_PATH} && bundle check || bundle install
+            cd ${REPO_PATH}
+            pwd -P
+            /usr/bin/env bash bin/setup || true
 
       - run:
           name: Run RSpecs
           command: |
             cd ${HELLO_WORLD_PATH} && bundle exec rspec -p 2
 
-  style:
-    docker:
-      - image: circleci/ruby:2.6.5
-    working_directory: /home/circleci/repo
-    environment:
-      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+  rubocop:
+    <<: *bazel_defaults
 
     steps:
       - checkout
+
       - run:
-          name: " ✅   Run Ruby Style Check"
+          name: Run Setup
           command: |
-            /usr/bin/env bash bin/ruby-check
+            cd ${REPO_PATH}
+            /usr/bin/env bash bin/setup || true
+
+      - run:
+          name: "Run Ruby Style Check"
+          command: |
+            cd /home/circleci/repo
+            bundle install --path=${HOME}/.bundle/gems
+            bundle exec rubocop -E -P
 
       - run:
           name: " Check if GCC/CC are installed"
@@ -63,44 +64,47 @@ jobs:
             gcc --version || true
 
   bazel:
-    docker:
-      - image: circleci/ruby:2.6.5
-    working_directory: /home/circleci/repo
-    environment:
-      HELLO_WORLD_PATH: /home/circleci/repo/ruby/gems/hello_world
+    <<: *bazel_defaults
     steps:
       - checkout
-      - run:
-          name: " ✅   Run Setup"
-          command: |
-            /usr/bin/env bash bin/setup
 
       - run:
-          name: " ✅   Run Bazel Commands & Build"
+          name: Run Setup
+          command: |
+            cd ${REPO_PATH}
+            /usr/bin/env bash bin/setup || true
+
+      - run:
+          name: "Bazel Build"
           command: |
             bazel query //...:all
             echo
-            bazel build //...:all
+            bazel ${BAZEL_OPTS} build ${BAZEL_BUILD_OPTS}  //...:all
 
       - run:
-          name: " ✅    Run HelloWorld CLI via Bazel"
+          name: "Bazel Run CLI"
           command: |
-            bazel run //ruby/gems/hello_world:cli spanish japanese turkish russian
+            bazel ${BAZEL_OPTS} run ${BAZEL_BUILD_OPTS} //ruby/gems/hello_world:cli spanish japanese turkish russian
 
       - run:
-          name: " ✅   Run HelloWorld SPECS via Bazel"
+          name: "Bazel Test"
           command: |
-            bazel run //ruby/gems/hello_world:specs
+            bazel ${BAZEL_OPTS} test ${BAZEL_BUILD_OPTS} ${BAZEL_TEST_OPTS} //ruby/gems/hello_world:specs
 
       - run:
-          name: " ✅   Build Sinatra App with Bazel"
+          name: "Build Sinatra App with Bazel"
           command: |
-            bazel build //ruby/apps/hello-world-web:all
+            bazel ${BAZEL_OPTS} build ${BAZEL_BUILD_OPTS} //ruby/apps/hello-world-web:all
+
+      - run:
+          name: "Run Rubocop using Bazel on all of the repo files using parent .rubocop.yml"
+          command: |
+            bazel ${BAZEL_OPTS} run //ruby:rubocop || true
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - style
+      - rspec
+      - rubocop
       - bazel

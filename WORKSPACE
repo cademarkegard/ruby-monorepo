@@ -22,21 +22,18 @@ load(
 
 ruby_rules_dependencies()
 
-ruby_register_toolchains()
+ruby_register_toolchains(version = "2.6.5")
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
 
 load("@bazelruby_ruby_rules//ruby:defs.bzl", "bundle_install")
 
 bundle_install(
-    name = "bundle.hello-world-gem",
-    gemfile = "//ruby/gems/hello_world:Gemfile",
-    gemfile_lock = "//ruby/gems/hello_world:Gemfile.lock",
-    #gemspec = "//ruby/gems/hello_world:hello_world.gemspec",
-    visibility = ["//visibility:public"],
-)
-
-bundle_install(
-    name = "bundle.hello-world-web",
-    gemfile = "//ruby/apps/hello-world-web:Gemfile",
-    gemfile_lock = "//ruby/apps/hello-world-web:Gemfile.lock",
+    name = "bundle",
+    gemfile = "//:Gemfile",
+    gemfile_lock = "//:Gemfile.lock",
+    version = "2.0.2",
     visibility = ["//visibility:public"],
 )

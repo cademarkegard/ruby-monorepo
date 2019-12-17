@@ -3,15 +3,17 @@
 export COLUMNS=90
 
 [[ -x bin/deps ]] && source "bin/deps"
-[[ -x bin/setup ]] && bin/setup ruby
+[[ -x bin/setup ]] && bin/setup rubocop
 
 find . -type d -name coverage -exec rm -rf {} \;
 
 hl::subtle "Running Rubocop, please wait..."
-run "rubocop -C true -F -D 1>&1 >/dev/null || rubocop -a || true"
+run "bundle check || bundle install --path=${HOME}/.bundle/gems"
+
+run "bundle exec rubocop -C true -F -D 1>&1 >/dev/null || rubocop -a || true"
 
 run::set-next abort-on-error show-output-on
-run "rubocop -E -P"
+run "bundle exec rubocop -E -P"
 
 success "Your Ruby style is great!"
 
