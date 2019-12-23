@@ -3,7 +3,6 @@
 source 'https://rubygems.org'
 
 gem 'rainbow', git: 'https://github.com/sickill/rainbow.git'
-gem 'relaxed-rubocop'
 gem 'rubocop'
 gem 'rubocop-performance'
 

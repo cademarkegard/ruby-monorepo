@@ -1,5 +1,4 @@
-inherit_gem:
-  relaxed-rubocop: .rubocop.yml
+inherit_from: .relaxed-rubocop-2.4.yml
 
 AllCops:
   TargetRubyVersion: 2.6
@@ -15,6 +14,8 @@ AllCops:
     - '**/Gemfile'
     - '**/Rakefile'
   Exclude:
+    - '**/server'
+    - '**/rubocop'
     - "**/external/bundle/**/*"
     - "**/bazel-*/**/*"
     - "**/examples/**/*"
@@ -25,3 +26,11 @@ AllCops:
 Layout/HashAlignment:
   Enabled: true
   EnforcedColonStyle: table
+
+Style/Dir:
+  Enabled: false
+
+# In Bazel we want to use __FILE__ because __dir__points to the actual sources
+Style/ExpandPathArguments:
+  Enabled: false
+

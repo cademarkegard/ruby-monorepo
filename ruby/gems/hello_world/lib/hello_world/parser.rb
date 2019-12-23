@@ -15,7 +15,7 @@ module HelloWorld
       def parse(argv, cli = nil)
         self.cli ||= cli
 
-        Options.new.tap do |args|
+        ::HelloWorld::Options.new.tap do |args|
           opt_parser = define_option_parser(args)
           opt_parser.parse!(argv)
           args.languages = argv.reject { |a| a =~ /^-/ }

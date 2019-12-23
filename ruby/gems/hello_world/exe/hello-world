@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+puts "Dir.pwd = " + Dir.pwd
+puts "pwd -P  = " + `pwd -P`
+print "LOAD_PATH:"
+pp $LOAD_PATH
+
 lib_path = File.expand_path("#{__dir__}/../lib")
 if File.exist?(lib_path) && !$LOAD_PATH.include?(lib_path)
   $LOAD_PATH << lib_path

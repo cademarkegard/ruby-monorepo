@@ -5,7 +5,12 @@ exports_files([
     "ruby/gems/hello_world/Gemfile.lock",
 ])
 
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_test")
+load(
+    "@bazelruby_ruby_rules//ruby:defs.bzl",
+    "ruby_binary",
+    "ruby_library",
+    "ruby_test",
+)
 
 ruby_library(
     name = "lib",
@@ -19,17 +24,22 @@ ruby_binary(
     deps = [
         ":lib",
         "@bundle//:colored2",
-        "@bundle//:rake",
     ],
 )
 
 ruby_test(
     name = "specs",
     timeout = "short",
-    srcs = glob(["spec/**/*_spec.rb"]) + [
-        "spec/spec_helper.rb",
+    srcs = glob(
+        ["spec/**/*.rb"],
+    ),
+    args = [
+        "ruby/gems/hello_world/spec",
     ],
-    includes = ["ruby/gems/hello_world/lib"],
+    includes = [
+        "ruby/gems/hello_world/lib",
+        "ruby/gems/hello_world/spec",
+    ],
     main = "spec/spec_helper.rb",
     rubyopt = ["-rrspec/autorun"],
     deps = [

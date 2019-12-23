@@ -63,7 +63,44 @@ jobs:
             cc1 --version || true
             gcc --version || true
 
-  bazel:
+  bazel_rubocop:
+    <<: *bazel_defaults
+    steps:
+      - checkout
+
+      - run:
+          name: Run Setup
+          command: |
+            cd ${REPO_PATH}
+            /usr/bin/env bash bin/setup || true
+
+      - run:
+          name: "Run Rubocop in /ruby"
+          command: |
+            bazel ${BAZEL_OPTS} run //ruby:rubocop
+
+  bazel_hello_world:
+    <<: *bazel_defaults
+    steps:
+      - checkout
+
+      - run:
+          name: Run Setup
+          command: |
+            cd ${REPO_PATH}
+            /usr/bin/env bash bin/setup || true
+
+      - run:
+          name: "Bazel Test"
+          command: |
+            cp .circleci/.bazelrc ${HOME}/
+            cd ruby/gems/hello_world
+            bazel clean
+            bazel ${BAZEL_OPTS} build ${BAZEL_BUILD_OPTS} :specs
+            bazel ${BAZEL_OPTS} test  ${BAZEL_BUILD_OPTS} ${BAZEL_TEST_OPTS} :specs
+            cd - >/dev/null
+
+  bazel_workspace:
     <<: *bazel_defaults
     steps:
       - checkout
@@ -87,19 +124,9 @@ jobs:
             bazel ${BAZEL_OPTS} run ${BAZEL_BUILD_OPTS} //ruby/gems/hello_world:cli spanish japanese turkish russian
 
       - run:
-          name: "Bazel Test"
-          command: |
-            bazel ${BAZEL_OPTS} test ${BAZEL_BUILD_OPTS} ${BAZEL_TEST_OPTS} //ruby/gems/hello_world:specs
-
-      - run:
           name: "Build Sinatra App with Bazel"
           command: |
             bazel ${BAZEL_OPTS} build ${BAZEL_BUILD_OPTS} //ruby/apps/hello-world-web:all
-
-      - run:
-          name: "Run Rubocop using Bazel on all of the repo files using parent .rubocop.yml"
-          command: |
-            bazel ${BAZEL_OPTS} run //ruby:rubocop || true
 
 workflows:
   version: 2
@@ -107,4 +134,6 @@ workflows:
     jobs:
       - rspec
       - rubocop
-      - bazel
+      - bazel_workspace
+      - bazel_hello_world
+      - bazel_rubocop

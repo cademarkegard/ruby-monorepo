@@ -1,68 +1,78 @@
 [![CircleCI](https://circleci.com/gh/bazelruby/ruby-monorepo.svg?style=svg)](https://circleci.com/gh/bazelruby/ruby-monorepo)
 
-* [Setting up Bazel](#setting-up-bazel)
-* [Usage](#usage)
-  * [Repo Components](#repo-components)
-    * [Bazel Workspace](#bazel-workspace)
+* [Setting stuff up for the impatient](#setting-stuff-up-for-the-impatient)
+  * [The Setup Script](#the-setup-script)
+* [Repo Components](#repo-components)
     * [Ruby Gem hello_world](#ruby-gem-hello_world)
     * [Ruby Sinatra Web App that uses hello_world gem](#ruby-sinatra-web-app-that-uses-hello_world-gem)
-    * [AWS Lambda](#aws-lambda)
-  * [Bazel Tooling](#bazel-tooling)
+* [Using Bazel to Build, Test and Run Ruby](#using-bazel-to-build-test-and-run-ruby)
+    * [Bazel Workspace](#bazel-workspace)
+  * [Getting Around with Bazel](#getting-around-with-bazel)
     * [1. Finding Available Targets](#1-finding-available-targets)
     * [2. Running CLI via Bazel](#2-running-cli-via-bazel)
     * [3. Running Gem Specs via Bazel](#3-running-gem-specs-via-bazel)
     * [4. Running Sinatra Web Server via Bazel](#4-running-sinatra-web-server-via-bazel)
-* [Directory Structure](#directory-structure)
-* [Feedback and Contributions](#feedback-and-contributions)
+  * [Feedback and Contributions](#feedback-and-contributions)
 * [Copyright](#copyright)
 
-# Mission Statement
+#### Mission Statement
 
 **The goal of this BazelRuby integration project is to make Ruby a first-class citizen in the Bazel eco-system, to be able to support very large Ruby mono-repo, and to take advantage of the parallel builds and fast caching that Bazel is famous for.**
 
-# A Working Example of a Ruby Mono-Repo
+# An Example of a Ruby Mono-Repo for Training Purposes
 
-> NOTE: This is still work in progress, which attempts to bridge the world of Ruby gems and applications with the Bazel Build System.
-
-> NOTE: This project has been developed and tested on Mac OS-X. If you are on Windows, your mileage may vary.
+Please note –— most of the development is currently happening in the <https://github.com/bazelruby/rules_ruby> repository. Please join if you'd like to collaborate.
 
 **The following screen-cast shows the basic usage of the bazel commands.**
 
-<a href="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT" target="_blank"><img src="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT.svg" width="600"/></a>
+<a href="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT" target="_blank"><img src="https://asciinema.org/a/tp7zrxecdiZuj3rPMEZw48jsT.svg" width="500"/></a>
 
+> NOTE: This is still work in progress, which attempts to bridge the world of Ruby gems and applications with the Bazel Build System. NOTE: This project has been developed and tested on Mac OS-X. If you are on Windows, your mileage may vary.
 
-## Setting up Bazel
+## Setting stuff up for the impatient
 
-Install [Bazel](https://docs.bazel.build/versions/master/install-os-x.html#install-with-installer-mac-os-x) using a binary installer if you prefer, or using Homebrew: `brew install bazel`.
+ * Run `xcode-select --install` if it's a new laptop
+ * Install [Homebrew](https://brew.sh) according to instructions there
+ * Run `bin/setup` script inside the repo.
+ * Run `bazel build ...` and watch its magic happen.
 
-Then run the provided setup script:
+### The Setup Script
+
+Then run the provided setup script `bin/setup`:
+
+You should see an output that's similar to [this image.](doc/ruby-mono-setup.jpg).
+
+## Repo Components
+
+This section briefly explains the components of this repository. Below is the directory tree up to 4 level deep:
+
 
 ```bash
-bin/setup
+.
+├── bin
+├── doc
+└── ruby
+    ├── apps
+    │   └── hello-world-web    # siantra app
+    │       ├── app
+    │       ├── bin
+    │       ├── doc
+    │       ├── spec
+    │       └── views
+    └── gems
+        └── hello_world.       # ruby gem sinatra depends on
+            ├── bin
+            ├── data
+            ├── exe
+            ├── lib
+            └── spec
 ```
 
-You should see something like this:
-
-<a href="doc/ruby-mono-setup.jpg"><img src="doc/ruby-mono-setup.jpg" width="500"></a>
-
-## Usage
-
-Since the expected audience of this README are relatively experienced Ruby Programmers, we will focus on the
-Bazel integration portion of this, and show how to run commands via Bazel.
-
-### Repo Components
-
-As the goal of this "fake" mono-repo is to be an example on which other Ruby Projects can be combined into a singular tree, we tried including various permutations of the Ruby libraries and applications, with inter-dependencies, external dependencies, and so on.
+As the goal of this small mono-repo is to be an example on which other Ruby Projects can be combined into a singular tree, we tried including various permutations of the Ruby libraries and applications, with inter-dependencies, external dependencies, and so on.
 
 > NOTE: At the moment this Repo does NOT include a Ruby on Rails application, but that's coming soon.
 
 It helps to start with the description of what is going on here:
-
-#### Bazel Workspace
-
-This repo is a **Bazel Workspace**. It has a single `WORKSPACE` file at the top level, which, among other things, loads [`rules_ruby` project](https://github.com/bazelruby/rules_ruby) as a third party dependency.
-
-All pure ruby code is under the `ruby` folder.
 
 #### Ruby Gem `hello_world`
 
@@ -76,7 +86,7 @@ Under `ruby/gems/hello_world` you would find a very simple Ruby Gem with a singu
 cd ruby/gems/hello_world
 bundle install
 # arguments are full or partial languages
-bundle exec exe/hello-worldr ru af kaz uz geo
+bundle exec exe/hello-world ru af kaz uz geo
 ```
 
 You might see something like the following output:
@@ -107,17 +117,19 @@ If you click on [http://127.0.0.1:9393/](http://127.0.0.1:9393/) URL shown above
 
 <a href="doc/web-ui.jpg"><img src="doc/web-ui.jpg" width="500"></a>
 
-#### AWS Lambda
-
-This folder is still under construction, so more info to come.
-
-This completes our overview of included components.
-
-### Bazel Tooling
+## Using Bazel to Build, Test and Run Ruby
 
 This mono-repo depends on the [rules_ruby](https://github.com/bazelruby/rules_ruby) repository (`develop` branch).
 
 Next examples we'll run from the top level folder of the project, but that's technically not necessary.
+
+#### Bazel Workspace
+
+This repo is a **Bazel Workspace**. It has a single `WORKSPACE` file at the top level, which, among other things, loads [`rules_ruby` project](https://github.com/bazelruby/rules_ruby) as a third party dependency.
+
+All pure ruby code is under the `ruby` folder.
+
+### Getting Around with Bazel
 
 #### 1. Finding Available Targets
 
@@ -166,7 +178,7 @@ bazel test //ruby/gems/hello_world:specs
 
 It's best to show the results of running specs in a screenshot:
 
-<a href="doc/gem-tests.jpg"><img src="doc/gem-tests.jpg" width="500"></a>
+<a href="doc/gem-tests.png"><img src="doc/gem-tests.png?a=1" width="640"></a>
 
 #### 4. Running Sinatra Web Server via Bazel
 
@@ -178,13 +190,7 @@ Here is the screenshot of running the server on the foreground, and hitting it a
 
 ---
 
-## Directory Structure
-
-Finally, below is the result of the `tree -C` command showing how the files are layed out int his repo.
-
-![file-tree](doc/file-tree.png)
-
-## Feedback and Contributions
+### Feedback and Contributions
 
 Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md), and we are very happy to accept help and pull requests or issues, or whatever you can contribute.
 
