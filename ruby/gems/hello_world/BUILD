@@ -19,7 +19,7 @@ ruby_binary(
     main = "exe/hello-world",
     deps = [
         ":lib",
-        "@bundle.hello-world-gem//:libs",
+        "@bundle.hello-world-gem//:colored2",
     ],
 )
 
@@ -32,6 +32,8 @@ ruby_test(
     rubyopt = ["-rrspec/autorun"],
     deps = [
         ":lib",
-        "@bundle.hello-world-gem//:libs",
+        "@bundle.hello-world-gem//:colored2",
+        "@bundle.hello-world-gem//:rake",
+        "@bundle.hello-world-gem//:rspec"
     ],
 )
