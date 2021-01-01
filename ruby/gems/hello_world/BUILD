@@ -6,7 +6,7 @@ exports_files([
     "ruby/gems/hello_world/hello_world.gemspec",
 ])
 
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_test")
+load("@bazelruby_rules_ruby//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_test")
 
 ruby_library(
     name = "lib",

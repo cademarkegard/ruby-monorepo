@@ -5,7 +5,7 @@ exports_files([
     "ruby/apps/hello-world-web/Gemfile.lock",
 ])
 
-load("@bazelruby_ruby_rules//ruby:defs.bzl", "ruby_binary")
+load("@bazelruby_rules_ruby//ruby:defs.bzl", "ruby_binary")
 
 # Ruby Web Server that depends on the hello_world gem
 ruby_binary(
@@ -22,8 +22,3 @@ ruby_binary(
         "@bundle.hello-world-gem//:libs",
     ],
 )
-
-# sh_binary(
-#     name = "hello-world-server",
-#     srcs = ["start"],
-# )
