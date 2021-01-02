@@ -6,7 +6,7 @@ exports_files([
     "ruby/gems/hello_world/hello_world.gemspec",
 ])
 
-load("@bazelruby_rules_ruby//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_test")
+load("@bazelruby_rules_ruby//ruby:defs.bzl", "ruby_binary", "ruby_library", "ruby_rspec", "ruby_test")
 
 ruby_library(
     name = "lib",
@@ -23,17 +23,19 @@ ruby_binary(
     ],
 )
 
-ruby_test(
+ruby_rspec(
     name = "specs",
     size = "small",
-    srcs = glob(["spec/**/*.rb"]),
-    includes = ["ruby/gems/hello_world/lib"],
-    main = "spec/spec_helper.rb",
-    rubyopt = ["-rrspec/autorun"],
-    deps = [
+    specs = glob(["spec/**/*.rb"]),
+    srcs = [
         ":lib",
-        "@bundle.hello-world-gem//:colored2",
-        "@bundle.hello-world-gem//:rake",
-        "@bundle.hello-world-gem//:rspec"
     ],
+    rspec_args = {
+        # NOTE: the output is only visible with --test_output=streamed flag
+        "--format": "progress",  # this is how we can override rspec output format
+    },
+    deps = [
+        "@bundle.hello-world-gem//:colored2",
+    ],
+    run_under = "ruby/gems/hello_world",
 )

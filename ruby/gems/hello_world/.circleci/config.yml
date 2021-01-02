@@ -1,7 +1,7 @@
 jobs:
   tests:
     docker:
-      - image: circleci/ruby:2.6.2
+      - image: circleci/ruby:2.7.1
     steps:
       - checkout
       - run: gem install bundler

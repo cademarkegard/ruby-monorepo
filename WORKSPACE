@@ -8,13 +8,13 @@ load(
     "git_repository",
 )
 
-# Note we lock down the bazelruby rules to a specific commit
-# for the tag v0.4.1: https://github.com/bazelruby/rules_ruby/releases/tag/v0.4.1
+# Note I had to port a feature (rununder) from coinbase's fork
+# to get the rspec feature working correctly
 git_repository(
     name = "bazelruby_rules_ruby",
-    commit = "6e5be6e0f67f73a4458f60d0f776e179424d7a29",
-    shallow_since = "1597040609 -0700",
-    remote = "https://github.com/bazelruby/rules_ruby.git",
+    shallow_since = "1609559912 +0000",
+    commit = "c11c84dea18c681e895cf63322b5f807c0fc492f",
+    remote = "https://github.com/cademarkegard/rules_ruby.git",
 )
 
 load(
@@ -38,6 +38,14 @@ ruby_bundle(
 
 ruby_bundle(
     name = "bundle.hello-world-web",
+    gemfile = "//ruby/apps/hello-world-web:Gemfile",
+    gemfile_lock = "//ruby/apps/hello-world-web:Gemfile.lock",
+    visibility = ["//visibility:public"],
+)
+
+# Had to add this to get rspec example working
+ruby_bundle(
+    name = "bundle",
     gemfile = "//ruby/apps/hello-world-web:Gemfile",
     gemfile_lock = "//ruby/apps/hello-world-web:Gemfile.lock",
     visibility = ["//visibility:public"],
